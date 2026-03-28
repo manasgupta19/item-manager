@@ -106,4 +106,25 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems).toHaveLength(mockData.length);
     expect(listItems[2]).toHaveTextContent("Car C");
   });
+
+  it("filters the list correctly based on the search query", () => {
+    render(<App />);
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
+    const searchInput = screen.getByTestId("search-input");
+
+    // Add multiple items
+    const items = ["Apple", "Banana", "Cherry"];
+    items.forEach(item => {
+      fireEvent.change(input, { target: { value: item } });
+      fireEvent.click(addButton);
+    });
+
+    // Search for 'an' (should match Banana)
+    fireEvent.change(searchInput, { target: { value: "an" } });
+
+    const listItems = screen.getAllByTestId("list-item");
+    expect(listItems).toHaveLength(1);
+    expect(listItems[0]).toHaveTextContent("Banana");
+  });
 });
