@@ -127,4 +127,23 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems).toHaveLength(1);
     expect(listItems[0]).toHaveTextContent("Banana");
   });
+
+  it("successfully removes an item from the list when delete is clicked", () => {
+    render(<App />);
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
+
+    // Add an item
+    fireEvent.change(input, { target: { value: "Delete Me" } });
+    fireEvent.click(addButton);
+
+    // Find the delete button and click it
+    const deleteButton = screen.getByTestId("delete-button");
+    fireEvent.click(deleteButton);
+
+    // Assert the item is gone
+    const listItems = screen.queryAllByTestId("list-item");
+    expect(listItems).toHaveLength(0);
+    expect(screen.queryByText("Delete Me")).toBeNull();
+  });
 });

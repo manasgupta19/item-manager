@@ -57,3 +57,24 @@ li {
   background: #f9f9f9;
   margin-bottom: 5px;
 }
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  color: #cc0000;
+  font-weight: bold;
+}

@@ -1,13 +1,23 @@
 import React from "react";
 
-// React.memo prevents unnecessary re-renders when parent state (input) changes
-const ListItem = React.memo(({ item }) => {
+// Actionable: Destructure the onRemove callback
+const ListItem = React.memo(({ item, onRemove }) => {
+  console.log(`Systemic Check: Rendering Item -> ${item.text}`);
+  
   return (
-    <li data-testid="list-item" className="list-item">{item.text}</li>
+    <li data-testid="list-item" className="list-item">
+      <span>{item.text}</span>
+      <button 
+        onClick={() => onRemove(item.id)}
+        className="delete-btn"
+        data-testid="delete-button"
+        aria-label={`Delete ${item.text}`}
+      >
+        &times;
+      </button>
+    </li>
   );
 });
 
-// Setting a display name for easier debugging in React DevTools
 ListItem.displayName = "ListItem";
-
 export default ListItem;

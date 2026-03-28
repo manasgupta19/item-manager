@@ -4,7 +4,7 @@ import ListItem from "./components/ListItem";
 import "./App.css";
 
 function App() {
-  const { items, addItem } = useItemList();
+  const { items, addItem, removeItem } = useItemList();
   const [input, setInput] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // New state for search
 
@@ -61,7 +61,11 @@ function App() {
           <h3>Current Inventory ({filteredItems.length})</h3>
           <ul data-testid="item-list" aria-live="polite">
             {filteredItems.map((item) => (
-              <ListItem key={item.id} item={item} />
+              <ListItem 
+                key={item.id} 
+                item={item} 
+                onRemove={removeItem} // Pass the stable callback
+              />
             ))}
           </ul>
         </section>

@@ -30,5 +30,10 @@ export const useItemList = () => {
     });
   }, []);
 
-  return { items, addItem };
+  // Actionable: Stable Callback for Deletion
+  const removeItem = useCallback((id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  return { items, addItem, removeItem }; // Expose removeItem
 };
