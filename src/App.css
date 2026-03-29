@@ -160,17 +160,6 @@ button[type="submit"]:hover {
   gap: 15px;
 }
 
-/* Accessible and Subtle Vote Pill Style */
-.vote-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: var(--agoda-radius-pill);
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: transform 0.1s;
-}
-
 .vote-btn:active {
   transform: scale(0.95);
 }
@@ -203,4 +192,129 @@ button[type="submit"]:hover {
 .delete-btn:hover {
   color: #cc0000;
   font-weight: bold;
+}
+
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  overflow-x: auto; /* For mobile responsiveness */
+  padding-bottom: 5px;
+}
+
+.sort-label {
+  font-size: 0.85rem;
+  color: var(--agoda-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sort-tab {
+  background: white;
+  border: 1px solid var(--agoda-border-neutral);
+  border-radius: var(--agoda-radius-pill);
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.sort-tab:hover {
+  border-color: var(--agoda-blue-interaction);
+  color: var(--agoda-blue-interaction);
+}
+
+.sort-tab.active {
+  background-color: var(--agoda-blue-primary);
+  color: white;
+  border-color: var(--agoda-blue-primary);
+}
+
+.item-date {
+  font-size: 0.75rem;
+  color: var(--agoda-text-secondary);
+  margin-top: -4px;
+}
+
+/* Agoda Dashboard Styling */
+.table-container {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+}
+
+/* Table Layout Grid */
+.list-header, .list-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  min-width: 750px;
+}
+
+.list-header {
+  background-color: #f8f9fa;
+  font-weight: 700;
+  color: #003580;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+/* Define matching column widths */
+.col-name { flex: 2.5; min-width: 150px; }
+.col-date { flex: 2; min-width: 180px; font-size: 0.85rem; }
+.col-votes { flex: 1; min-width: 100px; display: flex; justify-content: center; }
+.col-actions { flex: 1; min-width: 120px; display: flex; justify-content: flex-end; }
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.sortable:hover {
+  color: #0071c2;
+  text-decoration: underline;
+}
+
+.text-center { justify-content: center; }
+
+.vote-btn {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-weight: 600;
+  min-width: 60px;
+}
+
+/* Column Width Definitions */
+.col-name { flex: 2; }
+.col-date { flex: 2; font-size: 0.85rem; color: #666; }
+.col-votes { flex: 2; display: flex; justify-content: center; }
+.col-actions { flex: 1; display: flex; justify-content: flex-end; }
+
+.vote-group {
+  display: flex;
+  gap: 10px;
+}
+
+.delete-btn-action {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.delete-btn-action:hover {
+  background-color: #ff4d4f;
+  color: white;
 }

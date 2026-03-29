@@ -1,30 +1,32 @@
 import React from "react";
 
-// src/components/ListItem.jsx
 const ListItem = React.memo(({ item, onRemove, onVote }) => {
-  return (
-    <li data-testid="list-item" className="list-item">
-      {/* 1. Text container with ellipsis support */}
-      <span className="item-text">{item.text}</span>
-      
-      {/* 2. Actions container forced to a single row */}
-      <div className="item-actions">
-        <div className="vote-section">
-          <button onClick={() => onVote(item.id, 'upvotes')} className="vote-btn up" aria-label="Upvote">
-            👍 <span key={`up-${item.upvotes}`} className="count">{item.upvotes ?? 0}</span>
-          </button>
-          <button onClick={() => onVote(item.id, 'downvotes')} className="vote-btn down" aria-label="Downvote">
-            👎 <span key={`down-${item.downvotes}`} className="count">{item.downvotes ?? 0}</span>
-          </button>
-        </div>
+  // Staff Standard: Use 'en-US' for deterministic testing of AM/PM format
+  const formattedDateTime = new Date(item.date).toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+  });
 
-        <button 
-          onClick={() => onRemove(item.id)} 
-          className="delete-btn"
-          data-testid="delete-button"
-          aria-label={`Delete ${item.text}`}
-        >
-          &times;
+  return (
+    <li data-testid="list-item" className="list-row">
+      <div className="col-name">{item.text}</div>
+      <div className="col-date">{formattedDateTime}</div>
+      
+      <div className="col-votes">
+        <button onClick={() => onVote(item.id, 'upvotes')} className="vote-btn up" aria-label="Upvote">
+          👍 <span className="count">{item.upvotes ?? 0}</span>
+        </button>
+      </div>
+
+      <div className="col-votes">
+        <button onClick={() => onVote(item.id, 'downvotes')} className="vote-btn down" aria-label="Downvote">
+          👎 <span className="count">{item.downvotes ?? 0}</span>
+        </button>
+      </div>
+
+      <div className="col-actions">
+        <button onClick={() => onRemove(item.id)} className="delete-btn-action" data-testid="delete-button">
+          Remove
         </button>
       </div>
     </li>
