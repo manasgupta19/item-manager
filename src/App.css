@@ -398,7 +398,9 @@ body {
 
 /* Ensure disabled buttons look appropriate */
 button:disabled {
-  opacity: 0.4;
+  background-color: #e0e0e0 !important;
+  color: #a0a0a0 !important;
+  border: 1px solid #d0d0d0 !important;
   cursor: not-allowed;
-  filter: grayscale(1);
+  box-shadow: none;
 }

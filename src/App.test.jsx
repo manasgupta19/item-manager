@@ -177,11 +177,6 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       fireEvent.click(screen.getByText(/Contact Us/i));
     });
 
-    it("displays validation error for empty fields", async () => {
-      fireEvent.click(screen.getByTestId("contact-submit"));
-      expect(await screen.findByTestId("error-message")).toHaveTextContent("All fields are mandatory");
-    });
-
     it("displays validation error for invalid email format", async () => {
       fireEvent.change(screen.getByTestId("name-input"), { target: { value: "User" } });
       fireEvent.change(screen.getByTestId("email-input"), { target: { value: "invalid" } });
@@ -401,6 +396,82 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       expect(screen.queryByText("Welcome to Agoda Platform")).not.toBeInTheDocument();
       // Verify main app content is now visible/accessible
       expect(screen.getByText("Agoda Platform")).toBeInTheDocument();
+    });
+  });
+
+  describe("Contact Form - Strict Real-Time Validation", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      render(<App />);
+      // Navigate to Contact Page
+      fireEvent.click(screen.getByText(/Contact Us/i));
+    });
+
+    it("verifies the Submit button is disabled when the form is empty", () => {
+      const submitBtn = screen.getByTestId("contact-submit");
+      expect(submitBtn).toBeDisabled();
+      // Ensure no error messages are visible on a clean load
+      expect(screen.queryByTestId("error-message")).not.toBeInTheDocument();
+    });
+
+    it("shows name error and keeps button disabled for invalid name format", () => {
+      const nameInput = screen.getByTestId("name-input");
+      const submitBtn = screen.getByTestId("contact-submit");
+
+      // Too short and contains a number
+      fireEvent.change(nameInput, { target: { value: "M1" } });
+      
+      expect(screen.getByText(/Name must be at least 4 characters long/i)).toBeInTheDocument();
+      expect(submitBtn).toBeDisabled();
+    });
+
+    it("shows email error and keeps button disabled for invalid email regex", () => {
+      const emailInput = screen.getByTestId("email-input");
+      const submitBtn = screen.getByTestId("contact-submit");
+
+      fireEvent.change(emailInput, { target: { value: "manas@agoda" } }); // Missing .com/domain
+      
+      expect(screen.getByText(/Email is invalid/i)).toBeInTheDocument();
+      expect(submitBtn).toBeDisabled();
+    });
+
+    it("shows message error and keeps button disabled for short text", () => {
+      const msgInput = screen.getByTestId("message-input");
+      const submitBtn = screen.getByTestId("contact-submit");
+
+      fireEvent.change(msgInput, { target: { value: "Too short" } }); // 9 characters
+      
+      expect(screen.getByText(/Message must be at least 10 characters long/i)).toBeInTheDocument();
+      expect(submitBtn).toBeDisabled();
+    });
+
+    it("enables the Submit button only when all three fields are valid", () => {
+      const nameInput = screen.getByTestId("name-input");
+      const emailInput = screen.getByTestId("email-input");
+      const msgInput = screen.getByTestId("message-input");
+      const submitBtn = screen.getByTestId("contact-submit");
+
+      fireEvent.change(nameInput, { target: { value: "Manas Gupta" } });
+      fireEvent.change(emailInput, { target: { value: "manas@agoda.com" } });
+      fireEvent.change(msgInput, { target: { value: "This message is definitely long enough." } });
+
+      // All errors should disappear
+      expect(screen.queryByTestId("error-message")).not.toBeInTheDocument();
+      // Button should now be clickable
+      expect(submitBtn).not.toBeDisabled();
+    });
+
+    it("resets the button to disabled after a successful submission", () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Manas Gupta" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "manas@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Valid message for submission." } });
+      
+      const submitBtn = screen.getByTestId("contact-submit");
+      fireEvent.click(submitBtn);
+
+      // Form should clear and button should lock again
+      expect(submitBtn).toBeDisabled();
+      expect(screen.getByTestId("name-input")).toHaveValue("");
     });
   });
 });
