@@ -11,7 +11,6 @@ export const useLeads = () => {
   }, [leads]);
 
   const addLead = useCallback((leadData) => {
-    // FIX: Provide a fallback for environments without crypto.randomUUID
     const id = typeof crypto !== 'undefined' && crypto.randomUUID 
       ? crypto.randomUUID() 
       : `lead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -26,5 +25,10 @@ export const useLeads = () => {
     ]);
   }, []);
 
-  return { leads, addLead };
+  // NEW: Function to remove a lead by ID
+  const removeLead = useCallback((id) => {
+    setLeads((prev) => prev.filter(lead => lead.id !== id));
+  }, []);
+
+  return { leads, addLead, removeLead };
 };

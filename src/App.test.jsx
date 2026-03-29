@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import App from "./App";
 
 describe("Item Manager Platform - Final 16-Test Suite", () => {
-  
+
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
@@ -141,7 +141,7 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
     });
 
     it("triggers mandatory alert for empty dropdown selection", () => {
-      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => { });
       fireEvent.click(screen.getByTestId("show-details-btn"));
       expect(alertSpy).toHaveBeenCalledWith("Please select an item name");
     });
@@ -209,6 +209,99 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
     it("navigates back to inventory when the Cancel button is clicked", () => {
       fireEvent.click(screen.getByText("Cancel"));
       expect(screen.getAllByTestId("input-field")[0]).toBeInTheDocument();
+    });
+  });
+
+  describe("Contact Page - Session Logic & Modal (New Functionality)", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      // Pre-populate global storage to test session isolation
+      const historicalLead = [{
+        id: 'old-123',
+        name: 'Historical User',
+        email: 'old@agoda.com',
+        message: 'This is an old message from a previous session.'
+      }];
+      localStorage.setItem("agoda_leads_manager", JSON.stringify(historicalLead));
+
+      render(<App />);
+      fireEvent.click(screen.getByText(/Contact Us/i));
+    });
+
+    it("does NOT show historical leads on the contact page initially", () => {
+      expect(screen.queryByText("Historical User")).not.toBeInTheDocument();
+    });
+
+    it("shows only the newly added lead in the 'Recent Submissions' section", () => {
+      const nameInput = screen.getByTestId("name-input");
+      const emailInput = screen.getByTestId("email-input");
+      const msgInput = screen.getByTestId("message-input");
+
+      fireEvent.change(nameInput, { target: { value: "New User" } });
+      fireEvent.change(emailInput, { target: { value: "new@agoda.com" } });
+      fireEvent.change(msgInput, { target: { value: "This is a fresh session message." } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      expect(screen.getByText("Recent Submissions")).toBeInTheDocument();
+      expect(screen.getByText("New User")).toBeInTheDocument();
+    });
+
+    it("opens the confirmation modal when the delete button is clicked", () => {
+      // Add a lead first
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Deletable" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "del@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Delete me please." } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      // Click delete
+      fireEvent.click(screen.getByText("Delete"));
+
+      // Check for modal
+      expect(screen.getByText("Confirm Deletion")).toBeInTheDocument();
+      expect(screen.getByText("Are you sure you want to delete this submission?")).toBeInTheDocument();
+    });
+
+    it("removes the item only after 'Yes, Delete' is clicked in the modal", () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "ConfirmMe" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "conf@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Valid message length" } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      fireEvent.click(screen.getByText("Delete"));
+      fireEvent.click(screen.getByText("Yes, Delete"));
+
+      expect(screen.queryByText("ConfirmMe")).not.toBeInTheDocument();
+      expect(screen.queryByText("Confirm Deletion")).not.toBeInTheDocument();
+    });
+
+    it("keeps the item if 'Cancel' is clicked in the modal", () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "StayPut" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "stay@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "I am staying here." } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      fireEvent.click(screen.getByText("Delete"));
+      // Click Cancel inside the modal (selecting specifically by class or text)
+      const cancelButtons = screen.getAllByText("Cancel");
+      fireEvent.click(cancelButtons[cancelButtons.length - 1]);
+
+      expect(screen.getByText("StayPut")).toBeInTheDocument();
+      expect(screen.queryByText("Confirm Deletion")).not.toBeInTheDocument();
+    });
+
+    it("clears the session list when navigating away and back", () => {
+      // Add a lead
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "SessionUser" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "sess@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "This should disappear." } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      // Navigate to Inventory and back to Contact
+      fireEvent.click(screen.getByText("Agoda Platform"));
+      fireEvent.click(screen.getByText(/Contact Us/i));
+
+      expect(screen.queryByText("SessionUser")).not.toBeInTheDocument();
+      expect(screen.queryByText("Recent Submissions")).not.toBeInTheDocument();
     });
   });
 });

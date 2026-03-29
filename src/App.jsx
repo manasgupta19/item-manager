@@ -10,7 +10,7 @@ export default function App() {
   const [view, setView] = useState("inventory");
   const [selectedItemId, setSelectedItemId] = useState(null);
   const { items, addItem, removeItem, handleVote } = useItemList();
-  const { leads, addLead } = useLeads();
+  const { leads, addLead, removeLead } = useLeads();
 
   /**
    * Cyclic Navigation Logic:
@@ -86,7 +86,7 @@ export default function App() {
 
         {/* Contact Form Submission */}
         {view === "contact" && (
-          <ContactForm onToggleView={setView} onAddLead={addLead} />
+          <ContactForm onToggleView={setView} onAddLead={addLead} onRemoveLead={removeLead}/>
         )}
 
         {/* Leads Management View */}
