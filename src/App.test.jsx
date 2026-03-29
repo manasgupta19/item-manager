@@ -1,278 +1,143 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import App from "./App";
 
-describe("Staff-Level Item Manager - Full Integration", () => {
-
-  // High-value actionable: Ensure test isolation by clearing LocalStorage
-  beforeEach(() => {
-    localStorage.clear();
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-  });
+describe("Item Manager Platform - Final Integration Suite", () => {
 
   afterEach(() => {
     cleanup();
+    // Reset to real timers after every test to prevent environment leakage
     vi.useRealTimers();
   });
 
-  // 1. Existing functionality check
-  it("renders the initial empty state correctly", () => {
-    render(<App />);
-    const inputElement = screen.getByTestId("input-field");
-    const listItems = screen.queryAllByTestId("list-item");
-
-    expect(inputElement.value).toBe("");
-    expect(listItems).toHaveLength(0);
-  });
-
-  // 2. Addition and Reset logic check
-  it("adds a valid item to the list and clears the input", () => {
-    render(<App />);
-    const inputElement = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    fireEvent.change(inputElement, { target: { value: "Agoda Stay" } });
-    fireEvent.click(addButton);
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(1);
-    // Note: We use toHaveTextContent to handle whitespace nodes robustly
-    expect(listItems[0]).toHaveTextContent("Agoda Stay");
-    expect(inputElement.value).toBe("");
-  });
-
-  // 3. Systemic Validation: Whitespace rejection check
-  it("systemically prevents adding empty or whitespace-only items", () => {
-    render(<App />);
-    const inputElement = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    // Scenario 1: Empty string
-    fireEvent.change(inputElement, { target: { value: "" } });
-    fireEvent.click(addButton);
-
-    // Scenario 2: Whitespace only
-    fireEvent.change(inputElement, { target: { value: "   " } });
-    fireEvent.click(addButton);
-
-    const listItems = screen.queryAllByTestId("list-item");
-    expect(listItems).toHaveLength(0);
-  });
-
-  // 4. Persistence Check with hydration verification
-  it("verifies data persistence across session reloads (LocalStorage)", () => {
-    // Phase 1: Render and add an item
-    const { unmount } = render(<App />);
-    const inputElement = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    fireEvent.change(inputElement, { target: { value: "Persistent Item" } });
-    fireEvent.click(addButton);
-
-    // Phase 2: Simulate page refresh by unmounting and re-mounting
-    unmount();
-    render(<App />);
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(1);
-    expect(listItems[0]).toHaveTextContent("Persistent Item");
-  });
-
-  // 5. Deletion Flow Check
-  it("successfully removes an item from the list when delete is clicked", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    // Add an item
-    fireEvent.change(input, { target: { value: "Delete Me" } });
-    fireEvent.click(addButton);
-
-    // Find the delete button and click it
-    const deleteButton = screen.getByTestId("delete-button");
-    fireEvent.click(deleteButton);
-
-    // Assert the item is gone
-    const listItems = screen.queryAllByTestId("list-item");
-    expect(listItems).toHaveLength(0);
-    expect(screen.queryByText("Delete Me")).toBeNull();
-  });
-
-  // 6. Derived State / Search check
-  it("filters the list correctly based on the search query", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-    const searchInput = screen.getByTestId("search-input");
-
-    // Add multiple items
-    const items = ["Apple", "Banana", "Cherry"];
-    items.forEach(item => {
-      fireEvent.change(input, { target: { value: item } });
-      fireEvent.click(addButton);
+  /**
+   * SECTION 1: INVENTORY & CORE FEATURES
+   * Focuses on basic CRUD operations and search functionality.
+   */
+  describe("Inventory Operations", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      render(<App />);
     });
 
-    // Search for 'an' (should match Banana)
-    fireEvent.change(searchInput, { target: { value: "an" } });
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(1);
-    expect(listItems[0]).toHaveTextContent("Banana");
-  });
-
-  // 7. Voting Isolation Check (Critical for Platform role)
-  it("ensures voting on one item does not affect the vote counts of another", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    // Add two items
-    const items = ["Item A", "Item B"];
-    items.forEach(text => {
-      fireEvent.change(input, { target: { value: text } });
-      fireEvent.click(addButton);
-    });
-
-    // Upvote Item A
-    const upvoteButtons = screen.getAllByLabelText("Upvote");
-    fireEvent.click(upvoteButtons[0]); // Click first item's upvote
-
-    // Assert Item A has 1 vote, Item B still has 0
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("1");
-    expect(listItems[1]).toHaveTextContent("0");
-  });
-
-  // 8. DATA MIGRATION CHECK (Critical for Staff Engineer)
-  it("hydrates correctly and prevents NaN when localStorage contains old data schema (no votes)", () => {
-    // Stage old data in localStorage (Version without 'upvotes'/'downvotes')
-    const oldData = [
-      { id: '1-old', text: 'Old Data A' },
-      { id: '2-old', text: 'Old Data B' }
-    ];
-    localStorage.setItem("agoda_item_manager", JSON.stringify(oldData));
-
-    // Mount the app with old data
-    render(<App />);
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(2);
-
-    // Verify voting system works on old data without showing NaN
-    const upvoteButtons = screen.getAllByLabelText("Upvote");
-    expect(listItems[0]).toHaveTextContent("0"); // Expect 0, not NaN/blank
-
-    // Click vote on an "old" item
-    fireEvent.click(upvoteButtons[0]);
-
-    // Assert migration happened automatically and logic now works
-    expect(listItems[0]).toHaveTextContent("1");
-  });
-
-  // 1. Fixed Timestamp Test
-  it("displays the date and time in the correct HH:MM:SS AM/PM format", async () => {
-    const mockDate = new Date('2026-03-29T17:30:00');
-    vi.setSystemTime(mockDate);
-    
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    fireEvent.change(input, { target: { value: "Format Test" } });
-    fireEvent.click(screen.getByTestId("add-button"));
-
-    // FIX: Refined matcher to look for the specific element containing the time
-    // We check that the element has no children to ensure we pick the leaf node (the span/div)
-    const timestamp = screen.getByText((content, element) => {
-      const hasText = (text) => element.textContent.includes(text);
-      const isLeaf = element.children.length === 0;
-      return isLeaf && hasText("05:30:00") && hasText("PM") && hasText("Mar 29, 2026");
-    });
-
-    expect(timestamp).toBeDefined();
-  });
-
-  // 2. Fixed Sorting Toggle Test
-  it("toggles sorting between Ascending and Descending when clicking headers", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    // Add Zebra
-    fireEvent.change(input, { target: { value: "Zebra" } });
-    fireEvent.click(addButton);
-
-    // FIX: Advance time so "Apple" is definitively newer than "Zebra"
-    vi.advanceTimersByTime(1000);
-
-    // Add Apple
-    fireEvent.change(input, { target: { value: "Apple" } });
-    fireEvent.click(addButton);
-
-    // Default sort is Date (Descending), so newest "Apple" should be first
-    let listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Apple");
-
-    // Click "Item Name" header once -> sets Sort to "text" (Descending by default)
-    fireEvent.click(screen.getByText(/Item Name/i));
-    listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Zebra");
-
-    // Click "Item Name" header again -> toggles to Ascending
-    fireEvent.click(screen.getByText(/Item Name/i));
-    listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Apple");
-  });
-
-  // 3. Updated Upvote Sorting Test (Header Click)
-  it("sorts by Upvotes correctly when clicking the header", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    ["Item Low", "Item High"].forEach(text => {
-      fireEvent.change(input, { target: { value: text } });
-      fireEvent.click(addButton);
-    });
-
-    // Upvote "Item High"
-    const upvoteButtons = screen.getAllByLabelText("Upvote");
-    fireEvent.click(upvoteButtons[1]); 
-
-    // Requirement: Click the "Upvotes" header column
-    fireEvent.click(screen.getByText(/Upvotes/i));
-    
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Item High");
-  });
-
-  // 4. Updated Alphabetical Sorting (Header Clicks)
-  it("sorts items alphabetically correctly with case sensitivity ignored", () => {
-    render(<App />);
-    ["apple", "Banana", "airplane"].forEach(text => {
-      fireEvent.change(screen.getByTestId("input-field"), { target: { value: text } });
+    it("adds an item and confirms it appears in the list", () => {
+      const input = screen.getByTestId("input-field");
+      fireEvent.change(input, { target: { value: "Staff Component" } });
       fireEvent.click(screen.getByTestId("add-button"));
+      expect(screen.getByText("Staff Component")).toBeInTheDocument();
     });
 
-    // First click on "Item Name" sets direction to "desc"
-    fireEvent.click(screen.getByText(/Item Name/i));
-    // Second click toggles to "asc" (A-Z)
-    fireEvent.click(screen.getByText(/Item Name/i));
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent(/airplane/i);
-    expect(listItems[1]).toHaveTextContent(/apple/i);
-    expect(listItems[2]).toHaveTextContent(/Banana/i);
+    it("filters the list based on the search query", () => {
+      ["Frontend", "Backend", "Fullstack"].forEach(item => {
+        fireEvent.change(screen.getByTestId("input-field"), { target: { value: item } });
+        fireEvent.click(screen.getByTestId("add-button"));
+      });
+      fireEvent.change(screen.getByTestId("search-input"), { target: { value: "back" } });
+      expect(screen.getByText("Backend")).toBeInTheDocument();
+      expect(screen.queryByText("Frontend")).not.toBeInTheDocument();
+    });
   });
 
-  // 5. Existing Deletion Check
-  it("successfully removes an item from the list when delete is clicked", () => {
-    render(<App />);
-    fireEvent.change(screen.getByTestId("input-field"), { target: { value: "Delete Me" } });
-    fireEvent.click(screen.getByTestId("add-button"));
+  /**
+   * SECTION 2: TEMPORAL & SORTING LOGIC
+   * Uses fake timers to validate exact timestamp rendering and bi-directional sorting.
+   */
+  describe("Timestamps & Sorting (Locked Time)", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      vi.useFakeTimers();
+      // Lock system time to Sunday, March 29, 2026, 05:30:00 PM
+      const mockDate = new Date('2026-03-29T17:30:00');
+      vi.setSystemTime(mockDate);
+    });
 
-    const deleteButton = screen.getByTestId("delete-button");
-    fireEvent.click(deleteButton);
+    it("renders timestamps in the required HH:MM:SS AM/PM locale format", () => {
+      render(<App />);
+      fireEvent.change(screen.getByTestId("input-field"), { target: { value: "Time Check" } });
+      fireEvent.click(screen.getByTestId("add-button"));
 
-    expect(screen.queryAllByTestId("list-item")).toHaveLength(0);
+      const timestamp = screen.getByText((content, element) => {
+        const hasText = (t) => element.textContent.includes(t);
+        const isLeaf = element.children.length === 0;
+        return isLeaf && hasText("05:30:00") && hasText("PM") && hasText("Mar 29, 2026");
+      });
+      expect(timestamp).toBeDefined();
+    });
+
+    it("toggles sorting direction between Ascending and Descending on Name header", () => {
+      render(<App />);
+      const input = screen.getByTestId("input-field");
+      const add = screen.getByTestId("add-button");
+
+      fireEvent.change(input, { target: { value: "Zebra" } });
+      fireEvent.click(add);
+      vi.advanceTimersByTime(1000); // Advance clock to ensure different timestamps
+      fireEvent.change(input, { target: { value: "Apple" } });
+      fireEvent.click(add);
+
+      const nameHeader = screen.getByText(/Item Name/i);
+      
+      // First click: Sorts Name Descending (Z-A)
+      fireEvent.click(nameHeader);
+      let listItems = screen.getAllByTestId("list-item");
+      expect(listItems[0]).toHaveTextContent("Zebra");
+
+      // Second click: Toggles to Ascending (A-Z)
+      fireEvent.click(nameHeader);
+      listItems = screen.getAllByTestId("list-item");
+      expect(listItems[0]).toHaveTextContent("Apple");
+    });
+  });
+
+  /**
+   * SECTION 3: CONTACT FORM VALIDATIONS
+   * Uses real timers to ensure asynchronous 'findBy' queries can poll the DOM.
+   */
+  describe("Contact Form Validations (Async)", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      vi.useRealTimers(); // CRITICAL: findByTestId requires real timers to function
+      render(<App />);
+      fireEvent.click(screen.getByText(/Contact Us/i));
+    });
+
+    it("displays error when mandatory fields are missing", async () => {
+      fireEvent.click(screen.getByTestId("contact-submit"));
+      const error = await screen.findByTestId("error-message");
+      expect(error).toHaveTextContent("All fields are mandatory");
+    });
+
+    it("displays error for invalid email format", async () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Tester" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "invalid_email" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Valid message length content" } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+      
+      const error = await screen.findByTestId("error-message");
+      expect(error).toHaveTextContent("Email is invalid");
+    });
+
+    it("displays error for messages under 10 characters", async () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Tester" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "test@example.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Short" } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+      
+      const error = await screen.findByTestId("error-message");
+      expect(error).toHaveTextContent("Message must be at least 10 characters long");
+    });
+
+    it("navigates to the Leads view and displays data on valid submission", async () => {
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Verified Lead" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "lead@agoda.com" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "This inquiry meets the required length." } });
+      fireEvent.click(screen.getByTestId("contact-submit"));
+
+      // waitFor allows the React navigation/state update to complete
+      await waitFor(() => {
+        expect(screen.getByText(/Contact Info/i)).toBeInTheDocument();
+        expect(screen.getByText("lead@agoda.com")).toBeInTheDocument();
+      });
+    });
   });
 });

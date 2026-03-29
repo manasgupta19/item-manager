@@ -58,6 +58,51 @@ body {
   margin-bottom: 24px;
 }
 
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-btn {
+  background-color: white;
+  color: var(--agoda-blue-primary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-btn.secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid white;
+}
+
+.form-card {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.col-message { flex: 3; font-size: 0.9rem; color: #444; }
+.lead-email { display: block; font-weight: 600; color: var(--agoda-blue-interaction); }
+
+.success-msg { color: #28a745; font-weight: 600; text-align: center; }
+.error-text { color: #d93025; font-size: 0.85rem; margin-top: 8px; }
+
 .input-group, .search-group {
   margin-bottom: 12px;
   display: flex;
@@ -317,4 +362,107 @@ button[type="submit"]:hover {
 .delete-btn-action:hover {
   background-color: #ff4d4f;
   color: white;
+}
+
+/* --- Contact Form Layout Fixes --- */
+.form-card {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--agoda-border-neutral);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 500px;
+  margin: 40px auto; /* Centering the form on the page */
+}
+
+.form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Consistent spacing between inputs */
+}
+
+/* FIX: Ensure Textarea matches Input layout */
+.form-card textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid var(--agoda-border-neutral);
+  border-radius: var(--agoda-radius-md);
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical; /* Allows user to grow vertically but not break width */
+}
+
+.form-card textarea:focus {
+  outline: none;
+  border-color: var(--agoda-blue-interaction);
+  box-shadow: 0 0 0 3px rgba(0, 113, 194, 0.1);
+}
+
+/* FIX: Button Group for Submit and Cancel */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.submit-btn {
+  flex: 2; /* Submit is the primary action */
+  padding: 12px;
+  background-color: var(--agoda-blue-primary);
+  color: white;
+  border: none;
+  border-radius: var(--agoda-radius-md);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-btn {
+  flex: 1; /* Cancel is secondary */
+  padding: 12px;
+  background-color: #f0f0f0;
+  color: #666;
+  border: 1px solid #ccc;
+  border-radius: var(--agoda-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* --- View Leads Page Fixes --- */
+.leads-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* FIX: Back to Inventory Button Alignment */
+.inventory-nav-btn {
+  margin-top: 25px;
+  padding: 12px 24px;
+  background-color: white;
+  color: var(--agoda-blue-primary);
+  border: 2px solid var(--agoda-blue-primary);
+  border-radius: var(--agoda-radius-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.inventory-nav-btn:hover {
+  background-color: var(--agoda-blue-primary);
+  color: white;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--agoda-text-secondary);
+  font-style: italic;
 }
