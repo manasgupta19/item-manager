@@ -1,80 +1,77 @@
-.navbar {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 0;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.input-section {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.input-group {
-  margin: 20px 0;
-}
-
-input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-  width: 250px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #218838;
-}
-
-.item-list {
-  list-style-type: none;
-  padding: 0;
-  width: 350px;
-}
-
-li {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  background: #f9f9f9;
-  margin-bottom: 5px;
-}
-
 .list-item {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Pushes text left and actions right */
   align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Space between votes and delete button */
+}
+
+.vote-section {
+  display: flex;
+  gap: 8px; /* Space between Up and Down buttons */
+}
+
+/* Base Vote Button Styles */
+.vote-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 15px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+/* Green for Upvote */
+.vote-btn.up {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+  border-color: #c3e6cb;
+}
+
+.vote-btn.up:hover {
+  background-color: #1e7e34;
+  color: white;
+}
+
+/* Red for Downvote */
+.vote-btn.down {
+  background-color: #fce8e6;
+  color: #d93025;
+  border-color: #f5c6cb;
+}
+
+.vote-btn.down:hover {
+  background-color: #d93025;
+  color: white;
 }
 
 .delete-btn {
   background: none;
   border: none;
-  color: #ff4d4d;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 5px;
+  color: #999;
+  font-size: 1.5rem;
   line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
 }
 
 .delete-btn:hover {
-  color: #cc0000;
-  font-weight: bold;
+  color: #d93025;
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  min-width: 10px;
 }

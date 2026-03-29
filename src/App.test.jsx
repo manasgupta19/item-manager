@@ -146,4 +146,50 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems).toHaveLength(0);
     expect(screen.queryByText("Delete Me")).toBeNull();
   });
+
+  it("successfully removes an item from the list when delete is clicked", () => {
+    render(<App />);
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
+
+    fireEvent.change(input, { target: { value: "Delete Me" } });
+    fireEvent.click(addButton);
+
+    const deleteButton = screen.getByTestId("delete-button");
+    fireEvent.click(deleteButton);
+
+    expect(screen.queryAllByTestId("list-item")).toHaveLength(0);
+  });
+
+  it("filters the list correctly based on search", () => {
+    render(<App />);
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
+    const searchInput = screen.getByTestId("search-input");
+
+    ["Apple", "Banana"].forEach(text => {
+      fireEvent.change(input, { target: { value: text } });
+      fireEvent.click(addButton);
+    });
+
+    fireEvent.change(searchInput, { target: { value: "ana" } });
+    const listItems = screen.getAllByTestId("list-item");
+    expect(listItems).toHaveLength(1);
+    expect(listItems[0]).toHaveTextContent("Banana");
+  });
+
+  it("increments upvote and downvote counts independently", () => {
+    render(<App />);
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
+
+    fireEvent.change(input, { target: { value: "Vote Test" } });
+    fireEvent.click(addButton);
+
+    const upvoteBtn = screen.getByLabelText("Upvote");
+    fireEvent.click(upvoteBtn);
+    fireEvent.click(upvoteBtn);
+
+    expect(screen.getByText("2")).toBeDefined();
+  });
 });
