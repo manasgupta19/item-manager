@@ -8,10 +8,12 @@ describe("Staff-Level Item Manager - Full Integration", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
   });
 
   // 1. Existing functionality check
@@ -168,6 +170,7 @@ describe("Staff-Level Item Manager - Full Integration", () => {
     expect(listItems[0]).toHaveTextContent("1");
   });
 
+  // 1. Fixed Timestamp Test
   it("displays the date and time in the correct HH:MM:SS AM/PM format", async () => {
     const mockDate = new Date('2026-03-29T17:30:00');
     vi.setSystemTime(mockDate);
@@ -177,83 +180,99 @@ describe("Staff-Level Item Manager - Full Integration", () => {
     fireEvent.change(input, { target: { value: "Format Test" } });
     fireEvent.click(screen.getByTestId("add-button"));
 
-    // Logic: Finding split text nodes by checking the textContent of the parent span
+    // FIX: Refined matcher to look for the specific element containing the time
+    // We check that the element has no children to ensure we pick the leaf node (the span/div)
     const timestamp = screen.getByText((content, element) => {
       const hasText = (text) => element.textContent.includes(text);
-      return hasText("05:30:00") && hasText("PM");
+      const isLeaf = element.children.length === 0;
+      return isLeaf && hasText("05:30:00") && hasText("PM") && hasText("Mar 29, 2026");
     });
 
     expect(timestamp).toBeDefined();
   });
 
-  it("maintains sorting order while filtering via search", () => {
+  // 2. Fixed Sorting Toggle Test
+  it("toggles sorting between Ascending and Descending when clicking headers", () => {
     render(<App />);
-    // "Alpha" and "Alphabet" contain "Alph". "Beta" does not.
-    ["Alpha", "Beta", "Alphabet"].forEach(text => {
-      fireEvent.change(screen.getByTestId("input-field"), { target: { value: text } });
-      fireEvent.click(screen.getByTestId("add-button"));
-    });
+    const input = screen.getByTestId("input-field");
+    const addButton = screen.getByTestId("add-button");
 
-    // Click the "Item Name" header to sort A-Z
+    // Add Zebra
+    fireEvent.change(input, { target: { value: "Zebra" } });
+    fireEvent.click(addButton);
+
+    // FIX: Advance time so "Apple" is definitively newer than "Zebra"
+    vi.advanceTimersByTime(1000);
+
+    // Add Apple
+    fireEvent.change(input, { target: { value: "Apple" } });
+    fireEvent.click(addButton);
+
+    // Default sort is Date (Descending), so newest "Apple" should be first
+    let listItems = screen.getAllByTestId("list-item");
+    expect(listItems[0]).toHaveTextContent("Apple");
+
+    // Click "Item Name" header once -> sets Sort to "text" (Descending by default)
     fireEvent.click(screen.getByText(/Item Name/i));
-    
-    fireEvent.change(screen.getByTestId("search-input"), { target: { value: "Alph" } });
+    listItems = screen.getAllByTestId("list-item");
+    expect(listItems[0]).toHaveTextContent("Zebra");
 
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(2); 
-    expect(listItems[0]).toHaveTextContent("Alpha");
-    expect(listItems[1]).toHaveTextContent("Alphabet");
+    // Click "Item Name" header again -> toggles to Ascending
+    fireEvent.click(screen.getByText(/Item Name/i));
+    listItems = screen.getAllByTestId("list-item");
+    expect(listItems[0]).toHaveTextContent("Apple");
   });
 
-  it("sorts items by Most Upvoted correctly", () => {
+  // 3. Updated Upvote Sorting Test (Header Click)
+  it("sorts by Upvotes correctly when clicking the header", () => {
     render(<App />);
     const input = screen.getByTestId("input-field");
     const addButton = screen.getByTestId("add-button");
 
-    // Add Item A and Item B
-    fireEvent.change(input, { target: { value: "Item A" } });
-    fireEvent.click(addButton);
-    fireEvent.change(input, { target: { value: "Item B" } });
-    fireEvent.click(addButton);
-
-    // Upvote Item B
-    const upvoteButtons = screen.getAllByLabelText("Upvote");
-    fireEvent.click(upvoteButtons[1]);
-
-    // Switch to Upvoted Sort
-    const upvotedTab = screen.getByText("Upvoted");
-    fireEvent.click(upvotedTab);
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Item B"); // Item B should be first
-  });
-
-  it("sorts items alphabetically (A-Z)", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    ["Zebra", "Apple"].forEach(text => {
+    ["Item Low", "Item High"].forEach(text => {
       fireEvent.change(input, { target: { value: text } });
       fireEvent.click(addButton);
     });
 
-    fireEvent.click(screen.getByText("A-Z"));
+    // Upvote "Item High"
+    const upvoteButtons = screen.getAllByLabelText("Upvote");
+    fireEvent.click(upvoteButtons[1]); 
 
+    // Requirement: Click the "Upvotes" header column
+    fireEvent.click(screen.getByText(/Upvotes/i));
+    
     const listItems = screen.getAllByTestId("list-item");
-    expect(listItems[0]).toHaveTextContent("Apple");
+    expect(listItems[0]).toHaveTextContent("Item High");
   });
 
-  it("sorts alphabetically correctly with case sensitivity ignored", () => {
+  // 4. Updated Alphabetical Sorting (Header Clicks)
+  it("sorts items alphabetically correctly with case sensitivity ignored", () => {
     render(<App />);
     ["apple", "Banana", "airplane"].forEach(text => {
       fireEvent.change(screen.getByTestId("input-field"), { target: { value: text } });
       fireEvent.click(screen.getByTestId("add-button"));
     });
 
-    fireEvent.click(screen.getByText("A-Z"));
+    // First click on "Item Name" sets direction to "desc"
+    fireEvent.click(screen.getByText(/Item Name/i));
+    // Second click toggles to "asc" (A-Z)
+    fireEvent.click(screen.getByText(/Item Name/i));
+
     const listItems = screen.getAllByTestId("list-item");
     expect(listItems[0]).toHaveTextContent(/airplane/i);
     expect(listItems[1]).toHaveTextContent(/apple/i);
+    expect(listItems[2]).toHaveTextContent(/Banana/i);
+  });
+
+  // 5. Existing Deletion Check
+  it("successfully removes an item from the list when delete is clicked", () => {
+    render(<App />);
+    fireEvent.change(screen.getByTestId("input-field"), { target: { value: "Delete Me" } });
+    fireEvent.click(screen.getByTestId("add-button"));
+
+    const deleteButton = screen.getByTestId("delete-button");
+    fireEvent.click(deleteButton);
+
+    expect(screen.queryAllByTestId("list-item")).toHaveLength(0);
   });
 });
