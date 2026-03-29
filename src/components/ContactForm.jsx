@@ -8,7 +8,7 @@ const ContactForm = ({ onToggleView, onAddLead }) => {
     e.preventDefault();
     const { name, email, message } = form;
 
-    // Logic: Validation priority
+    // Logic: Validation priority matches the test suite expectations
     if (!name.trim() || !email.trim() || !message.trim()) {
       setError("All fields are mandatory");
       return;
@@ -33,7 +33,8 @@ const ContactForm = ({ onToggleView, onAddLead }) => {
   return (
     <div className="form-card">
       <h2 className="form-title">Contact Us</h2>
-      <form onSubmit={handleSubmit} className="vertical-form">
+      {/* FIX: Add noValidate to prevent HTML5 from blocking the test submission */}
+      <form onSubmit={handleSubmit} className="vertical-form" noValidate>
         <input
           type="text"
           placeholder="Name"
@@ -56,7 +57,6 @@ const ContactForm = ({ onToggleView, onAddLead }) => {
           data-testid="message-input"
         />
         
-        {/* Isolated error message tag */}
         {error && (
           <p data-testid="error-message" className="error-text">
             {error}
@@ -70,7 +70,7 @@ const ContactForm = ({ onToggleView, onAddLead }) => {
           <button 
             type="button" 
             onClick={() => onToggleView("inventory")} 
-            className="cancel-btn"
+            className="back-btn"
           >
             Cancel
           </button>

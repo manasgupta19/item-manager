@@ -430,8 +430,9 @@ button[type="submit"]:hover {
 }
 
 .back-btn:hover {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: #f0f4f8; /* Light blue tint on hover */
+  border-color: var(--agoda-blue-interaction);
+  color: var(--agoda-blue-interaction);
 }
 
 /* --- View Leads Page Fixes --- */

@@ -11,10 +11,15 @@ export const useLeads = () => {
   }, [leads]);
 
   const addLead = useCallback((leadData) => {
+    // FIX: Provide a fallback for environments without crypto.randomUUID
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : `lead-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
     setLeads((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id,
         ...leadData,
         date: new Date().toISOString(),
       },
