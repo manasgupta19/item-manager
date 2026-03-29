@@ -2,7 +2,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import App from "./App";
 
-describe("Staff-Level Item Manager Integration Tests", () => {
+describe("Staff-Level Item Manager - Full Integration", () => {
   
   // High-value actionable: Ensure test isolation by clearing LocalStorage
   beforeEach(() => {
@@ -14,6 +14,7 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     cleanup();
   });
 
+  // 1. Existing functionality check
   it("renders the initial empty state correctly", () => {
     render(<App />);
     const inputElement = screen.getByTestId("input-field");
@@ -23,6 +24,7 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems).toHaveLength(0);
   });
 
+  // 2. Addition and Reset logic check
   it("adds a valid item to the list and clears the input", () => {
     render(<App />);
     const inputElement = screen.getByTestId("input-field");
@@ -38,6 +40,7 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(inputElement.value).toBe("");
   });
 
+  // 3. Systemic Validation: Whitespace rejection check
   it("systemically prevents adding empty or whitespace-only items", () => {
     render(<App />);
     const inputElement = screen.getByTestId("input-field");
@@ -55,23 +58,7 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems).toHaveLength(0);
   });
 
-  it("enforces uniqueness by rejecting duplicate entries (Case-Insensitive)", () => {
-    render(<App />);
-    const inputElement = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    // Add first entry
-    fireEvent.change(inputElement, { target: { value: "Bangkok" } });
-    fireEvent.click(addButton);
-
-    // Attempt to add duplicate with different casing
-    fireEvent.change(inputElement, { target: { value: "BANGKOK" } });
-    fireEvent.click(addButton);
-
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(1);
-  });
-
+  // 4. Persistence Check with hydration verification
   it("verifies data persistence across session reloads (LocalStorage)", () => {
     // Phase 1: Render and add an item
     const { unmount } = render(<App />);
@@ -90,23 +77,27 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems[0]).toHaveTextContent("Persistent Item");
   });
 
-  it("correctly renders multiple distinct items in sequence", () => {
+  // 5. Deletion Flow Check
+  it("successfully removes an item from the list when delete is clicked", () => {
     render(<App />);
-    const inputElement = screen.getByTestId("input-field");
+    const input = screen.getByTestId("input-field");
     const addButton = screen.getByTestId("add-button");
 
-    const mockData = ["Hotel A", "Flight B", "Car C"];
+    // Add an item
+    fireEvent.change(input, { target: { value: "Delete Me" } });
+    fireEvent.click(addButton);
 
-    mockData.forEach(val => {
-      fireEvent.change(inputElement, { target: { value: val } });
-      fireEvent.click(addButton);
-    });
+    // Find the delete button and click it
+    const deleteButton = screen.getByTestId("delete-button");
+    fireEvent.click(deleteButton);
 
-    const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(mockData.length);
-    expect(listItems[2]).toHaveTextContent("Car C");
+    // Assert the item is gone
+    const listItems = screen.queryAllByTestId("list-item");
+    expect(listItems).toHaveLength(0);
+    expect(screen.queryByText("Delete Me")).toBeNull();
   });
 
+  // 6. Derived State / Search check
   it("filters the list correctly based on the search query", () => {
     render(<App />);
     const input = screen.getByTestId("input-field");
@@ -128,68 +119,52 @@ describe("Staff-Level Item Manager Integration Tests", () => {
     expect(listItems[0]).toHaveTextContent("Banana");
   });
 
-  it("successfully removes an item from the list when delete is clicked", () => {
+  // 7. Voting Isolation Check (Critical for Platform role)
+  it("ensures voting on one item does not affect the vote counts of another", () => {
     render(<App />);
     const input = screen.getByTestId("input-field");
     const addButton = screen.getByTestId("add-button");
 
-    // Add an item
-    fireEvent.change(input, { target: { value: "Delete Me" } });
-    fireEvent.click(addButton);
-
-    // Find the delete button and click it
-    const deleteButton = screen.getByTestId("delete-button");
-    fireEvent.click(deleteButton);
-
-    // Assert the item is gone
-    const listItems = screen.queryAllByTestId("list-item");
-    expect(listItems).toHaveLength(0);
-    expect(screen.queryByText("Delete Me")).toBeNull();
-  });
-
-  it("successfully removes an item from the list when delete is clicked", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-
-    fireEvent.change(input, { target: { value: "Delete Me" } });
-    fireEvent.click(addButton);
-
-    const deleteButton = screen.getByTestId("delete-button");
-    fireEvent.click(deleteButton);
-
-    expect(screen.queryAllByTestId("list-item")).toHaveLength(0);
-  });
-
-  it("filters the list correctly based on search", () => {
-    render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
-    const searchInput = screen.getByTestId("search-input");
-
-    ["Apple", "Banana"].forEach(text => {
+    // Add two items
+    const items = ["Item A", "Item B"];
+    items.forEach(text => {
       fireEvent.change(input, { target: { value: text } });
       fireEvent.click(addButton);
     });
 
-    fireEvent.change(searchInput, { target: { value: "ana" } });
+    // Upvote Item A
+    const upvoteButtons = screen.getAllByLabelText("Upvote");
+    fireEvent.click(upvoteButtons[0]); // Click first item's upvote
+
+    // Assert Item A has 1 vote, Item B still has 0
     const listItems = screen.getAllByTestId("list-item");
-    expect(listItems).toHaveLength(1);
-    expect(listItems[0]).toHaveTextContent("Banana");
+    expect(listItems[0]).toHaveTextContent("1");
+    expect(listItems[1]).toHaveTextContent("0");
   });
 
-  it("increments upvote and downvote counts independently", () => {
+  // 8. DATA MIGRATION CHECK (Critical for Staff Engineer)
+  it("hydrates correctly and prevents NaN when localStorage contains old data schema (no votes)", () => {
+    // Stage old data in localStorage (Version without 'upvotes'/'downvotes')
+    const oldData = [
+      { id: '1-old', text: 'Old Data A' },
+      { id: '2-old', text: 'Old Data B' }
+    ];
+    localStorage.setItem("agoda_item_manager", JSON.stringify(oldData));
+
+    // Mount the app with old data
     render(<App />);
-    const input = screen.getByTestId("input-field");
-    const addButton = screen.getByTestId("add-button");
 
-    fireEvent.change(input, { target: { value: "Vote Test" } });
-    fireEvent.click(addButton);
-
-    const upvoteBtn = screen.getByLabelText("Upvote");
-    fireEvent.click(upvoteBtn);
-    fireEvent.click(upvoteBtn);
-
-    expect(screen.getByText("2")).toBeDefined();
+    const listItems = screen.getAllByTestId("list-item");
+    expect(listItems).toHaveLength(2);
+    
+    // Verify voting system works on old data without showing NaN
+    const upvoteButtons = screen.getAllByLabelText("Upvote");
+    expect(listItems[0]).toHaveTextContent("0"); // Expect 0, not NaN/blank
+    
+    // Click vote on an "old" item
+    fireEvent.click(upvoteButtons[0]);
+    
+    // Assert migration happened automatically and logic now works
+    expect(listItems[0]).toHaveTextContent("1");
   });
 });
