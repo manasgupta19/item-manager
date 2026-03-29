@@ -1,6 +1,6 @@
 import React from "react";
 
-const ListItem = React.memo(({ item, onRemove, onVote }) => {
+const ListItem = React.memo(({ item, onRemove, onVote, onViewDetails }) => {
   // Staff Standard: Use 'en-US' for deterministic testing of AM/PM format
   const formattedDateTime = new Date(item.date).toLocaleString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
@@ -13,19 +13,39 @@ const ListItem = React.memo(({ item, onRemove, onVote }) => {
       <div className="col-date">{formattedDateTime}</div>
       
       <div className="col-votes">
-        <button onClick={() => onVote(item.id, 'upvotes')} className="vote-btn up" aria-label="Upvote">
+        <button 
+          onClick={() => onVote(item.id, 'upvotes')} 
+          className="vote-btn up" 
+          aria-label="Upvote"
+        >
           👍 <span className="count">{item.upvotes ?? 0}</span>
         </button>
       </div>
 
       <div className="col-votes">
-        <button onClick={() => onVote(item.id, 'downvotes')} className="vote-btn down" aria-label="Downvote">
+        <button 
+          onClick={() => onVote(item.id, 'downvotes')} 
+          className="vote-btn down" 
+          aria-label="Downvote"
+        >
           👎 <span className="count">{item.downvotes ?? 0}</span>
         </button>
       </div>
 
       <div className="col-actions">
-        <button onClick={() => onRemove(item.id)} className="delete-btn-action" data-testid="delete-button">
+        {/* NEW: View Details Button (Medical Records Pattern) */}
+        <button 
+          onClick={() => onViewDetails(item.id)} 
+          className="view-btn-action"
+          data-testid="view-button"
+        >
+          View
+        </button>
+        <button 
+          onClick={() => onRemove(item.id)} 
+          className="delete-btn-action" 
+          data-testid="delete-button"
+        >
           Remove
         </button>
       </div>

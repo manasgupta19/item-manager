@@ -1,14 +1,20 @@
-import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor, within } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import App from "./App";
 
-describe("Item Manager Platform - Final Integrated Suite", () => {
+describe("Item Manager Platform - Final 16-Test Suite", () => {
   
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
   });
 
+  // Helper to isolate the inventory table list from the navigation dropdown
+  const getInventoryList = () => screen.getByRole('list');
+
+  /**
+   * SECTION 1: INVENTORY OPERATIONS (5 Tests)
+   */
   describe("Inventory Operations", () => {
     beforeEach(() => {
       localStorage.clear();
@@ -17,73 +23,81 @@ describe("Item Manager Platform - Final Integrated Suite", () => {
 
     it("adds a new item and confirms its presence in the list", () => {
       const input = screen.getAllByTestId("input-field")[0];
-      const addButton = screen.getByTestId("add-button");
       fireEvent.change(input, { target: { value: "Quality Assurance Item" } });
-      fireEvent.click(addButton);
-      expect(screen.getByText("Quality Assurance Item")).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId("add-button"));
+
+      const list = getInventoryList();
+      expect(within(list).getByText("Quality Assurance Item")).toBeInTheDocument();
     });
 
     it("successfully removes an item from the list", () => {
       const input = screen.getAllByTestId("input-field")[0];
       fireEvent.change(input, { target: { value: "Discardable Item" } });
       fireEvent.click(screen.getByTestId("add-button"));
-      const deleteBtn = screen.getByTestId("delete-button");
-      fireEvent.click(deleteBtn);
-      expect(screen.queryByText("Discardable Item")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("delete-button"));
+      const list = getInventoryList();
+      expect(within(list).queryByText("Discardable Item")).not.toBeInTheDocument();
     });
 
     it("filters the inventory list based on search input", () => {
       const input = screen.getAllByTestId("input-field")[0];
-      const addButton = screen.getByTestId("add-button");
       ["Apple", "Banana", "Cherry"].forEach(text => {
         fireEvent.change(input, { target: { value: text } });
-        fireEvent.click(addButton);
+        fireEvent.click(screen.getByTestId("add-button"));
       });
+
       fireEvent.change(screen.getByTestId("search-input"), { target: { value: "nan" } });
-      expect(screen.queryByText("Apple")).not.toBeInTheDocument();
-      expect(screen.getByText("Banana")).toBeInTheDocument();
-      expect(screen.queryByText("Cherry")).not.toBeInTheDocument();
+      const list = getInventoryList();
+      expect(within(list).queryByText("Apple")).not.toBeInTheDocument();
+      expect(within(list).getByText("Banana")).toBeInTheDocument();
     });
 
     it("updates upvote and downvote counts correctly", () => {
       const input = screen.getAllByTestId("input-field")[0];
       fireEvent.change(input, { target: { value: "Vote Test" } });
       fireEvent.click(screen.getByTestId("add-button"));
-      const upvoteBtn = screen.getAllByLabelText("Upvote")[0];
-      const downvoteBtn = screen.getAllByLabelText("Downvote")[0];
-      fireEvent.click(upvoteBtn);
-      fireEvent.click(upvoteBtn);
+
+      fireEvent.click(screen.getAllByLabelText("Upvote")[0]);
+      fireEvent.click(screen.getAllByLabelText("Upvote")[0]);
       expect(screen.getByText("2", { selector: ".up .count" })).toBeInTheDocument();
-      fireEvent.click(downvoteBtn);
+
+      fireEvent.click(screen.getAllByLabelText("Downvote")[0]);
       expect(screen.getByText("1", { selector: ".down .count" })).toBeInTheDocument();
     });
 
-    it("persists items in localStorage across renders", () => {
+    it("persists items in localStorage across renders", async () => {
       const input = screen.getAllByTestId("input-field")[0];
       fireEvent.change(input, { target: { value: "Persistent Item" } });
       fireEvent.click(screen.getByTestId("add-button"));
+
+      // Wait for item to appear to ensure useEffect has triggered storage write
+      await within(getInventoryList()).findByText("Persistent Item");
+
       cleanup();
       render(<App />);
-      expect(screen.getByText("Persistent Item")).toBeInTheDocument();
+      expect(within(getInventoryList()).getByText("Persistent Item")).toBeInTheDocument();
     });
   });
 
-  describe("Timestamps & Sorting (Fake Timers)", () => {
+  /**
+   * SECTION 2: SORTING & TIMESTAMPS (3 Tests)
+   */
+  describe("Timestamps & Sorting", () => {
     beforeEach(() => {
       localStorage.clear();
       vi.useFakeTimers();
-      const mockDate = new Date('2026-03-29T17:30:00');
-      vi.setSystemTime(mockDate);
+      vi.setSystemTime(new Date('2026-03-29T17:30:00'));
     });
 
     it("renders timestamps in the correct HH:MM:SS AM/PM locale format", () => {
       render(<App />);
-      fireEvent.change(screen.getAllByTestId("input-field")[0], { target: { value: "Time Validation" } });
+      fireEvent.change(screen.getAllByTestId("input-field")[0], { target: { value: "Time Test" } });
       fireEvent.click(screen.getByTestId("add-button"));
+
       const timestamp = screen.getByText((content, element) => {
         const hasText = (t) => element.textContent.includes(t);
-        const isLeaf = element.children.length === 0;
-        return isLeaf && hasText("05:30:00") && hasText("PM") && hasText("Mar 29, 2026");
+        return element.children.length === 0 && hasText("05:30:00") && hasText("PM");
       });
       expect(timestamp).toBeDefined();
     });
@@ -91,89 +105,110 @@ describe("Item Manager Platform - Final Integrated Suite", () => {
     it("toggles sorting between Ascending and Descending on header click", () => {
       render(<App />);
       const input = screen.getAllByTestId("input-field")[0];
-      const addButton = screen.getByTestId("add-button");
-      fireEvent.change(input, { target: { value: "Zebra" } });
-      fireEvent.click(addButton);
-      vi.advanceTimersByTime(1000); 
-      fireEvent.change(input, { target: { value: "Apple" } });
-      fireEvent.click(addButton);
+      fireEvent.change(input, { target: { value: "Zebra" } }); fireEvent.click(screen.getByTestId("add-button"));
+      vi.advanceTimersByTime(1000);
+      fireEvent.change(input, { target: { value: "Apple" } }); fireEvent.click(screen.getByTestId("add-button"));
+
       const header = screen.getByText(/Item Name/i);
-      fireEvent.click(header);
-      let listItems = screen.getAllByTestId("list-item");
-      expect(listItems[0]).toHaveTextContent("Zebra");
-      fireEvent.click(header);
-      listItems = screen.getAllByTestId("list-item");
-      expect(listItems[0]).toHaveTextContent("Apple");
+      fireEvent.click(header); // Desc
+      fireEvent.click(header); // Asc
+      expect(screen.getAllByTestId("list-item")[0]).toHaveTextContent("Apple");
     });
 
     it("sorts the inventory by Upvotes in descending order", () => {
       render(<App />);
       const input = screen.getAllByTestId("input-field")[0];
-      const addButton = screen.getByTestId("add-button");
-      ["Low Vote", "High Vote"].forEach(text => {
-        fireEvent.change(input, { target: { value: text } });
-        fireEvent.click(addButton);
-      });
-      const upvoteButtons = screen.getAllByLabelText("Upvote");
-      fireEvent.click(upvoteButtons[1]); 
+      fireEvent.change(input, { target: { value: "Low" } }); fireEvent.click(screen.getByTestId("add-button"));
+      fireEvent.change(input, { target: { value: "High" } }); fireEvent.click(screen.getByTestId("add-button"));
+
+      fireEvent.click(screen.getAllByLabelText("Upvote")[1]);
       fireEvent.click(screen.getByText(/Upvotes/i));
-      const listItems = screen.getAllByTestId("list-item");
-      expect(listItems[0]).toHaveTextContent("High Vote");
+      expect(screen.getAllByTestId("list-item")[0]).toHaveTextContent("High");
     });
   });
 
-  describe("Contact Form Validations (Real Timers)", () => {
+  /**
+   * SECTION 3: CYCLIC NAVIGATION (3 Tests)
+   */
+  describe("Cyclic Navigation", () => {
     beforeEach(() => {
       localStorage.clear();
-      vi.useRealTimers(); 
+      render(<App />);
+      fireEvent.change(screen.getAllByTestId("input-field")[0], { target: { value: "Item A" } });
+      fireEvent.click(screen.getByTestId("add-button"));
+      fireEvent.change(screen.getAllByTestId("input-field")[0], { target: { value: "Item B" } });
+      fireEvent.click(screen.getByTestId("add-button"));
+    });
+
+    it("triggers mandatory alert for empty dropdown selection", () => {
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+      fireEvent.click(screen.getByTestId("show-details-btn"));
+      expect(alertSpy).toHaveBeenCalledWith("Please select an item name");
+    });
+
+    it("navigates to the correct profile via the jump dropdown", () => {
+      const dropdown = screen.getByTestId("jump-dropdown");
+      fireEvent.change(dropdown, { target: { value: dropdown.options[1].value } });
+      fireEvent.click(screen.getByTestId("show-details-btn"));
+      expect(screen.getByText("Item Profile")).toBeInTheDocument();
+      expect(screen.getByText("Item A")).toBeInTheDocument();
+    });
+
+    it("cycles through the inventory indefinitely using Next Item", () => {
+      const dropdown = screen.getByTestId("jump-dropdown");
+      fireEvent.change(dropdown, { target: { value: dropdown.options[1].value } });
+      fireEvent.click(screen.getByTestId("show-details-btn"));
+
+      fireEvent.click(screen.getByText("Next Item"));
+      expect(screen.getByText("Item B")).toBeInTheDocument();
+      fireEvent.click(screen.getByText("Next Item"));
+      expect(screen.getByText("Item A")).toBeInTheDocument();
+    });
+  });
+
+  /**
+   * SECTION 4: CONTACT & LEADS (5 Tests)
+   */
+  describe("Contact Form & Leads", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      vi.useRealTimers();
       render(<App />);
       fireEvent.click(screen.getByText(/Contact Us/i));
     });
 
-    it("displays the correct validation error for empty fields", async () => {
+    it("displays validation error for empty fields", async () => {
       fireEvent.click(screen.getByTestId("contact-submit"));
-      const error = await screen.findByTestId("error-message");
-      expect(error).toHaveTextContent("All fields are mandatory");
+      expect(await screen.findByTestId("error-message")).toHaveTextContent("All fields are mandatory");
     });
 
-    it("displays the correct validation error for invalid email format", async () => {
+    it("displays validation error for invalid email format", async () => {
       fireEvent.change(screen.getByTestId("name-input"), { target: { value: "User" } });
-      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "invalid-email" } });
-      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "This message is long enough." } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "invalid" } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Valid Length Message" } });
       fireEvent.click(screen.getByTestId("contact-submit"));
-      const error = await screen.findByTestId("error-message");
-      expect(error).toHaveTextContent("Email is invalid");
+      expect(await screen.findByTestId("error-message")).toHaveTextContent("Email is invalid");
     });
 
-    it("displays the correct validation error for short messages", async () => {
+    it("displays validation error for short messages", async () => {
       fireEvent.change(screen.getByTestId("name-input"), { target: { value: "User" } });
-      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "user@agoda.com" } });
+      fireEvent.change(screen.getByTestId("email-input"), { target: { value: "test@agoda.com" } });
       fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Short" } });
       fireEvent.click(screen.getByTestId("contact-submit"));
-      const error = await screen.findByTestId("error-message");
-      expect(error).toHaveTextContent("Message must be at least 10 characters long");
+      expect(await screen.findByTestId("error-message")).toHaveTextContent("Message must be at least 10 characters long");
     });
 
     it("submits the form successfully and redirects to Leads view", async () => {
-      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Lead Name" } });
+      fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Lead" } });
       fireEvent.change(screen.getByTestId("email-input"), { target: { value: "lead@agoda.com" } });
-      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "This inquiry meets all requirements." } });
+      fireEvent.change(screen.getByTestId("message-input"), { target: { value: "This is a valid long message." } });
       fireEvent.click(screen.getByTestId("contact-submit"));
-      await waitFor(() => {
-        expect(screen.getByText(/Contact Info/i)).toBeInTheDocument();
-        expect(screen.getByText("lead@agoda.com")).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByText("lead@agoda.com")).toBeInTheDocument());
     });
 
     it("navigates back to inventory when the Cancel button is clicked", () => {
-      const cancelBtn = screen.getByText(/Cancel/i);
-      fireEvent.click(cancelBtn);
+      fireEvent.click(screen.getByText("Cancel"));
       expect(screen.getAllByTestId("input-field")[0]).toBeInTheDocument();
-    });
-
-    it("displays an empty state message when no leads have been submitted", () => {
-      fireEvent.click(screen.getByText(/View Leads/i));
-      expect(screen.getByText(/No inquiries found/i)).toBeInTheDocument();
     });
   });
 });

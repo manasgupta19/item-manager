@@ -1,70 +1,55 @@
-/* Agoda Platform Design Token: Clean Palette & High Contrast */
+/* ==========================================================================
+   AGODA DESIGN SYSTEM - GLOBAL VARIABLES
+   ========================================================================== */
 :root {
-  --agoda-blue-primary: #003580; /* Headers, primary actions */
-  --agoda-blue-interaction: #0071C2; /* Hover states, active links */
-  --agoda-background-card: #ffffff;
-  --agoda-border-neutral: #d9d9d9;
-  --agoda-text-primary: #333333;
-  --agoda-text-secondary: #666666;
-  
-  /* Platform Standard: Rounded Corners */
+  --agoda-blue-primary: #003580;
+  --agoda-blue-secondary: #006ce4;
+  --agoda-blue-interaction: #004cb8;
+  --agoda-white: #ffffff;
+  --agoda-gray-light: #f5f7fa;
+  --agoda-gray-border: #ced4da;
+  --agoda-text-main: #333333;
+  --agoda-text-muted: #666666;
+  --agoda-error: #d93025;
+  --agoda-radius-lg: 12px;
   --agoda-radius-md: 8px;
-  --agoda-radius-pill: 20px;
+  --agoda-radius-sm: 4px;
+  --agoda-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Open Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background-color: #f7f7f7;
-  color: var(--agoda-text-primary);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--agoda-gray-light);
+  color: var(--agoda-text-main);
+  line-height: 1.6;
 }
 
+/* ==========================================================================
+   LAYOUT & NAVBAR
+   ========================================================================== */
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+  min-height: 100vh;
 }
 
-/* Agoda Header Style */
 .navbar {
   background-color: var(--agoda-blue-primary);
   color: white;
-  padding: 12px 0;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.navbar h1 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-.App {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 90%;
-  max-width: 600px;
-  margin: 20px 0;
-}
-
-/* Grouping Controls: Add and Search */
-.controls {
-  width: 100%;
-  margin-bottom: 24px;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .nav-content {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 20px;
 }
 
 .nav-actions {
@@ -73,397 +58,351 @@ body {
 }
 
 .nav-btn {
-  background-color: white;
-  color: var(--agoda-blue-primary);
-  border: none;
   padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.nav-btn.secondary {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  border-radius: var(--agoda-radius-sm);
   border: 1px solid white;
-}
-
-.form-card {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 500px;
-}
-
-.col-message { flex: 3; font-size: 0.9rem; color: #444; }
-.lead-email { display: block; font-weight: 600; color: var(--agoda-blue-interaction); }
-
-.success-msg { color: #28a745; font-weight: 600; text-align: center; }
-.error-text { color: #d93025; font-size: 0.85rem; margin-top: 8px; }
-
-.input-group, .search-group {
-  margin-bottom: 12px;
-  display: flex;
-  width: 100%;
-}
-
-input {
-  flex-grow: 1;
-  padding: 12px;
-  border: 1px solid var(--agoda-border-neutral);
-  border-radius: var(--agoda-radius-md);
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--agoda-blue-interaction);
-  box-shadow: 0 0 0 3px rgba(0, 113, 194, 0.1);
-}
-
-/* Agoda Primary Button Style */
-button[type="submit"] {
-  padding: 12px 20px;
-  margin-left: 10px;
-  background-color: var(--agoda-blue-primary);
+  background: transparent;
   color: white;
-  border: none;
-  border-radius: var(--agoda-radius-md);
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button[type="submit"]:hover {
-  background-color: var(--agoda-blue-interaction);
-}
-
-.list-container h3 {
-  margin-top: 0;
-  color: var(--agoda-text-secondary);
-  font-size: 1.1rem;
-}
-
-.item-list {
-  list-style-type: none;
-  padding: 0;
-  width: 100%;
-}
-
-/* Item Card Style with Interaction Feedback */
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-bottom: 1px solid #eee;
-  gap: 16px;
-}
-
-.list-item:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-}
-
-.list-item:active {
-  transform: scale(0.99); /* Tactile Feedback on Click */
-}
-
-.item-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-grow: 1;
-}
-
-.item-text {
-  /* Staff-level fix for flexbox text truncation */
-  flex: 1;
-  min-width: 0; 
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 1.1rem;
-  font-weight: 500;
-  text-align: left;
-}
-
-.item-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0; 
-  flex-wrap: nowrap;
-}
-
-.vote-controls {
-  display: flex;
-  gap: 15px;
-}
-
-.vote-btn:active {
-  transform: scale(0.95);
-}
-
-.count-pop {
-  display: inline-block;
-  font-weight: bold;
-  margin-left: 4px;
-  animation: pop 0.2s ease-out;
-}
-
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); color: var(--agoda-blue-primary); }
-  100% { transform: scale(1); }
-}
-
-/* Delete Button Style (Retained but styled subtly) */
-.delete-btn {
-  background: none;
-  border: none;
-  color: #ff4d4d;
-  font-size: 1.4rem;
-  cursor: pointer;
-  padding: 0 8px;
-  margin-left: 10px;
-  line-height: 1;
-}
-
-.delete-btn:hover {
-  color: #cc0000;
-  font-weight: bold;
-}
-
-.sort-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  overflow-x: auto; /* For mobile responsiveness */
-  padding-bottom: 5px;
-}
-
-.sort-label {
-  font-size: 0.85rem;
-  color: var(--agoda-text-secondary);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.sort-tab {
-  background: white;
-  border: 1px solid var(--agoda-border-neutral);
-  border-radius: var(--agoda-radius-pill);
-  padding: 6px 14px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  white-space: nowrap;
   transition: all 0.2s;
 }
 
-.sort-tab:hover {
-  border-color: var(--agoda-blue-interaction);
-  color: var(--agoda-blue-interaction);
+.nav-btn:hover {
+  background: white;
+  color: var(--agoda-blue-primary);
 }
 
-.sort-tab.active {
+.nav-btn.secondary {
+  background: var(--agoda-blue-secondary);
+  border-color: var(--agoda-blue-secondary);
+}
+
+.App {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ==========================================================================
+   CONTROLS (JUMP, ADD, SEARCH)
+   ========================================================================== */
+.jump-controls, .controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding: 20px;
+  background: white;
+  border-radius: var(--agoda-radius-md);
+  box-shadow: var(--agoda-shadow);
+  align-items: center;
+}
+
+.select-container, .input-group, .search-group {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: center;
+}
+
+.agoda-select, input[type="text"], input[type="email"], textarea {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--agoda-gray-border);
+  border-radius: var(--agoda-radius-sm);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.agoda-select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--agoda-blue-primary);
+  box-shadow: 0 0 0 2px rgba(0, 53, 128, 0.1);
+}
+
+.show-btn, .add-btn, .submit-btn {
   background-color: var(--agoda-blue-primary);
   color: white;
-  border-color: var(--agoda-blue-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--agoda-radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.item-date {
-  font-size: 0.75rem;
-  color: var(--agoda-text-secondary);
-  margin-top: -4px;
+.show-btn:hover, .add-btn:hover, .submit-btn:hover {
+  background-color: var(--agoda-blue-interaction);
 }
 
-/* Agoda Dashboard Styling */
+/* ==========================================================================
+   INVENTORY TABLE
+   ========================================================================== */
 .table-container {
-  width: 100%;
   background: white;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  overflow-x: auto;
-}
-
-/* Table Layout Grid */
-.list-header, .list-row {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  min-width: 800px;
+  border-radius: var(--agoda-radius-md);
+  box-shadow: var(--agoda-shadow);
+  overflow: hidden;
 }
 
 .list-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
   background-color: #f8f9fa;
+  padding: 1rem;
   font-weight: 700;
-  color: #003580;
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  border-bottom: 2px solid var(--agoda-gray-border);
 }
-
-/* Define matching column widths */
-.col-name { flex: 2.5; min-width: 150px; }
-.col-date { flex: 2; min-width: 180px; font-size: 0.85rem; }
-.col-votes { flex: 1; min-width: 100px; display: flex; justify-content: center; }
-.col-actions { flex: 1; min-width: 120px; display: flex; justify-content: flex-end; }
 
 .sortable {
   cursor: pointer;
   user-select: none;
-  transition: color 0.2s;
 }
 
 .sortable:hover {
-  color: #0071c2;
-  text-decoration: underline;
+  color: var(--agoda-blue-secondary);
 }
 
-.text-center { justify-content: center; }
+.item-list {
+  list-style: none;
+}
+
+.list-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
+  padding: 1rem;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.list-row:last-child {
+  border-bottom: none;
+}
+
+/* ==========================================================================
+   VOTING & ACTIONS
+   ========================================================================== */
+.col-votes {
+  display: flex;
+  justify-content: center;
+}
 
 .vote-btn {
-  background: white;
-  border: 1px solid #ddd;
+  background: none;
+  border: 1px solid #eee;
+  padding: 4px 8px;
   border-radius: 20px;
-  padding: 4px 10px;
-  font-weight: 600;
-  min-width: 60px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
 }
 
-/* Column Width Definitions */
-.col-name { flex: 2; }
-.col-date { flex: 2; font-size: 0.85rem; color: #666; }
-.col-votes { flex: 2; display: flex; justify-content: center; }
-.col-actions { flex: 1; display: flex; justify-content: flex-end; }
+.vote-btn.up:hover { background-color: #e8f5e9; border-color: #4caf50; }
+.vote-btn.down:hover { background-color: #ffebee; border-color: #f44336; }
 
-.vote-group {
+.col-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.view-btn-action {
+  background-color: white;
+  color: var(--agoda-blue-primary);
+  border: 1px solid var(--agoda-blue-primary);
+  padding: 6px 14px;
+  border-radius: var(--agoda-radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-btn-action:hover {
+  background-color: var(--agoda-blue-primary);
+  color: white;
 }
 
 .delete-btn-action {
-  background-color: #fff1f0;
-  color: #ff4d4f;
-  border: 1px solid #ffccc7;
-  padding: 4px 12px;
-  border-radius: 4px;
+  background-color: white;
+  color: var(--agoda-error);
+  border: 1px solid var(--agoda-error);
+  padding: 6px 14px;
+  border-radius: var(--agoda-radius-sm);
   cursor: pointer;
-  font-size: 0.8rem;
 }
 
 .delete-btn-action:hover {
-  background-color: #ff4d4f;
-  color: white;
+  background-color: #fff1f0;
 }
 
-/* --- Contact Form Layout Fixes --- */
+/* ==========================================================================
+   FORMS & DETAIL VIEWS
+   ========================================================================== */
 .form-card {
   background: white;
-  padding: 30px;
-  border-radius: 8px;
-  border: 1px solid var(--agoda-border-neutral);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  width: 100%;
-  max-width: 500px;
-  margin: 40px auto; /* Centering the form on the page */
+  padding: 2.5rem;
+  border-radius: var(--agoda-radius-lg);
+  box-shadow: var(--agoda-shadow);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.form-card form {
+.form-title {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--agoda-blue-primary);
+}
+
+.vertical-form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Consistent spacing between inputs */
+  gap: 1rem;
 }
 
-/* FIX: Ensure Textarea matches Input layout */
-.form-card textarea {
-  width: 100%;
+.form-message-box {
   min-height: 120px;
-  padding: 12px;
-  border: 1px solid var(--agoda-border-neutral);
-  border-radius: var(--agoda-radius-md);
-  font-family: inherit;
-  font-size: 1rem;
-  resize: vertical; /* Allows user to grow vertically but not break width */
+  resize: vertical;
 }
 
-.form-card textarea:focus {
-  outline: none;
-  border-color: var(--agoda-blue-interaction);
-  box-shadow: 0 0 0 3px rgba(0, 113, 194, 0.1);
+.error-text {
+  color: var(--agoda-error);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: -0.5rem;
 }
 
-/* FIX: Button Group for Submit and Cancel */
 .button-group {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.submit-btn {
-  flex: 2; /* Submit is the primary action */
-  padding: 12px;
-  background-color: var(--agoda-blue-primary);
-  color: white;
-  border: none;
-  border-radius: var(--agoda-radius-md);
-  font-weight: 700;
-  cursor: pointer;
-}
-
+/* Agoda Secondary Action: Blue Outline */
 .back-btn {
-  flex: 1; /* Cancel is secondary */
+  flex: 1;
   padding: 12px;
-  background-color: #f0f0f0;
-  color: #666;
-  border: 1px solid #ccc;
-  border-radius: var(--agoda-radius-md);
+  background-color: white;
+  color: var(--agoda-blue-primary);
+  border: 1px solid var(--agoda-blue-primary);
+  border-radius: var(--agoda-radius-sm);
   font-weight: 600;
   cursor: pointer;
 }
 
 .back-btn:hover {
-  background-color: #f0f4f8; /* Light blue tint on hover */
-  border-color: var(--agoda-blue-interaction);
-  color: var(--agoda-blue-interaction);
+  background-color: #f0f4f8;
 }
 
-/* --- View Leads Page Fixes --- */
-.leads-container {
-  width: 100%;
+/* ==========================================================================
+   ITEM PROFILE / DETAIL VIEW
+   ========================================================================== */
+.detail-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 2rem;
 }
 
-/* FIX: Back to Inventory Button Alignment */
-.inventory-nav-btn {
-  margin-top: 25px;
-  padding: 12px 24px;
-  background-color: white;
-  color: var(--agoda-blue-primary);
-  border: 2px solid var(--agoda-blue-primary);
+.detail-profile {
+  text-align: center;
+  padding: 2rem;
+  background: var(--agoda-gray-light);
   border-radius: var(--agoda-radius-md);
+  margin-bottom: 1rem;
+}
+
+.detail-profile h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   MISC
+   ========================================================================== */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--agoda-text-muted);
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: var(--agoda-text-muted);
+}
+
+/* ==========================================================================
+   LEADS VIEW SPECIFIC STYLES
+   ========================================================================== */
+
+/* Scoped 3-Column Grid for Leads */
+.leads-table .list-header, 
+.leads-table .list-row {
+  grid-template-columns: 1fr 1.5fr 2fr; /* Name (1), Info (1.5), Message (2) */
+  gap: 20px;
+}
+
+.leads-page {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Return to Inventory Button (Agoda Primary Style) */
+.center-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding-bottom: 40px;
+}
+
+.inventory-nav-btn {
+  background-color: var(--agoda-blue-primary);
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: var(--agoda-radius-sm);
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 53, 128, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .inventory-nav-btn:hover {
-  background-color: var(--agoda-blue-primary);
-  color: white;
+  background-color: var(--agoda-blue-interaction);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 53, 128, 0.3);
 }
 
-.empty-state {
-  padding: 40px;
-  text-align: center;
-  color: var(--agoda-text-secondary);
-  font-style: italic;
+.inventory-nav-btn:active {
+  transform: translateY(0);
+}
+
+/* Lead Info specific styling */
+.lead-email {
+  display: block;
+  font-weight: 600;
+  color: var(--agoda-blue-secondary);
+}
+
+.col-message {
+  color: var(--agoda-text-main);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
