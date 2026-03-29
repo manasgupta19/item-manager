@@ -4,12 +4,13 @@ export const useItemList = () => {
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem("agoda_item_manager");
     const parsed = saved ? JSON.parse(saved) : [];
-    // Data Migration: Ensure all items have a date
+    // Data Migration: Ensure all items have a date AND a price
     return parsed.map(item => ({
       ...item,
       upvotes: item.upvotes ?? 0,
       downvotes: item.downvotes ?? 0,
-      date: item.date ?? new Date().toISOString()
+      date: item.date ?? new Date().toISOString(),
+      price: item.price ?? 100.00 // Default price for existing items
     }));
   });
 
@@ -17,7 +18,8 @@ export const useItemList = () => {
     localStorage.setItem("agoda_item_manager", JSON.stringify(items));
   }, [items]);
 
-  const addItem = useCallback((text) => {
+  // Updated to accept an optional price
+  const addItem = useCallback((text, price = 100) => {
     const trimmed = text.trim();
     if (!trimmed) return;
     setItems((prev) => {
@@ -27,9 +29,17 @@ export const useItemList = () => {
         text: trimmed, 
         upvotes: 0, 
         downvotes: 0,
-        date: new Date().toISOString() // Set timestamp on creation
+        date: new Date().toISOString(),
+        price: parseFloat(price) || 100.00 // Store price as a number
       }];
     });
+  }, []);
+
+  // NEW: Function to update price
+  const updatePrice = useCallback((id, newPrice) => {
+    setItems(prev => prev.map(i => 
+      i.id === id ? { ...i, price: parseFloat(newPrice) || 0 } : i
+    ));
   }, []);
 
   const handleVote = useCallback((id, type) => {
@@ -40,5 +50,5 @@ export const useItemList = () => {
     setItems(prev => prev.filter(i => i.id !== id));
   }, []);
 
-  return { items, addItem, removeItem, handleVote };
+  return { items, addItem, removeItem, handleVote, updatePrice };
 };

@@ -5,6 +5,7 @@ import InventoryTable from "./components/InventoryTable";
 import ContactForm from "./components/ContactForm";
 import ItemDetail from "./components/ItemDetail";
 import OnboardingTutorial from "./components/OnboardingTutorial";
+import BudgetEstimator from "./components/BudgetEstimator";
 import "./App.css";
 
 const TUTORIAL_SLIDES = [
@@ -34,7 +35,7 @@ export default function App() {
   const [showTutorial, setShowTutorial] = useState(true);
   const [view, setView] = useState("inventory");
   const [selectedItemId, setSelectedItemId] = useState(null);
-  const { items, addItem, removeItem, handleVote } = useItemList();
+  const { items, addItem, removeItem, handleVote, updatePrice } = useItemList();
   const { leads, addLead, removeLead } = useLeads();
 
   /**
@@ -70,9 +71,9 @@ export default function App() {
   return (
     <div className="container">
       {showTutorial && (
-        <OnboardingTutorial 
-          slides={TUTORIAL_SLIDES} 
-          onFinish={() => setShowTutorial(false)} 
+        <OnboardingTutorial
+          slides={TUTORIAL_SLIDES}
+          onFinish={() => setShowTutorial(false)}
         />
       )}
       <header className="navbar">
@@ -81,15 +82,11 @@ export default function App() {
             Agoda Platform
           </h1>
           <nav className="nav-actions">
-            <button className="nav-btn" onClick={() => setView("contact")}>
-              Contact Us
-            </button>
-            <button
-              className="nav-btn secondary"
-              onClick={() => setView("leads")}
-            >
-              View Leads
-            </button>
+            {/* Added Budget Planner to Nav */}
+            <button className="nav-btn" onClick={() => setView("inventory")}>Inventory</button>
+            <button className="nav-btn" onClick={() => setView("budget")}>Budget Planner</button>
+            <button className="nav-btn" onClick={() => setView("contact")}>Contact Us</button>
+            <button className="nav-btn secondary" onClick={() => setView("leads")}>View Leads</button>
           </nav>
         </div>
       </header>
@@ -106,18 +103,24 @@ export default function App() {
           />
         )}
 
+        {/* New Budget Estimator View */}
+        {view === "budget" && (
+          <BudgetEstimator items={items} />
+        )}
+
         {/* Detailed Item View with Cyclic Navigation */}
         {view === "details" && selectedItemId && (
           <ItemDetail
             item={items.find((i) => i.id === selectedItemId)}
             onNext={handleNextItem}
             onBack={handleReturnToInventory}
+            onUpdatePrice={updatePrice}
           />
         )}
 
         {/* Contact Form Submission */}
         {view === "contact" && (
-          <ContactForm onToggleView={setView} onAddLead={addLead} onRemoveLead={removeLead}/>
+          <ContactForm onToggleView={setView} onAddLead={addLead} onRemoveLead={removeLead} />
         )}
 
         {/* Leads Management View */}

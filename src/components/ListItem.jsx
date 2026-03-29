@@ -10,12 +10,15 @@ const ListItem = React.memo(({ item, onRemove, onVote, onViewDetails }) => {
   return (
     <li data-testid="list-item" className="list-row">
       <div className="col-name">{item.text}</div>
+      <div className="col-amount">
+        ${item.price?.toFixed(2) || "100.00"}
+      </div>
       <div className="col-date">{formattedDateTime}</div>
-      
+
       <div className="col-votes">
-        <button 
-          onClick={() => onVote(item.id, 'upvotes')} 
-          className="vote-btn up" 
+        <button
+          onClick={() => onVote(item.id, 'upvotes')}
+          className="vote-btn up"
           aria-label="Upvote"
         >
           👍 <span className="count">{item.upvotes ?? 0}</span>
@@ -23,9 +26,9 @@ const ListItem = React.memo(({ item, onRemove, onVote, onViewDetails }) => {
       </div>
 
       <div className="col-votes">
-        <button 
-          onClick={() => onVote(item.id, 'downvotes')} 
-          className="vote-btn down" 
+        <button
+          onClick={() => onVote(item.id, 'downvotes')}
+          className="vote-btn down"
           aria-label="Downvote"
         >
           👎 <span className="count">{item.downvotes ?? 0}</span>
@@ -34,16 +37,16 @@ const ListItem = React.memo(({ item, onRemove, onVote, onViewDetails }) => {
 
       <div className="col-actions">
         {/* NEW: View Details Button (Medical Records Pattern) */}
-        <button 
-          onClick={() => onViewDetails(item.id)} 
+        <button
+          onClick={() => onViewDetails(item.id)}
           className="view-btn-action"
           data-testid="view-button"
         >
           View
         </button>
-        <button 
-          onClick={() => onRemove(item.id)} 
-          className="delete-btn-action" 
+        <button
+          onClick={() => onRemove(item.id)}
+          className="delete-btn-action"
           data-testid="delete-button"
         >
           Remove

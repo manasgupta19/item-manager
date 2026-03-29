@@ -2,7 +2,7 @@ import { render, screen, fireEvent, cleanup, waitFor, within } from "@testing-li
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import App from "./App";
 
-describe("Item Manager Platform - Final 16-Test Suite", () => {
+describe("Item Manager Platform - Final Test Suite", () => {
 
   afterEach(() => {
     cleanup();
@@ -420,7 +420,7 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
 
       // Too short and contains a number
       fireEvent.change(nameInput, { target: { value: "M1" } });
-      
+
       expect(screen.getByText(/Name must be at least 4 characters long/i)).toBeInTheDocument();
       expect(submitBtn).toBeDisabled();
     });
@@ -430,7 +430,7 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       const submitBtn = screen.getByTestId("contact-submit");
 
       fireEvent.change(emailInput, { target: { value: "manas@agoda" } }); // Missing .com/domain
-      
+
       expect(screen.getByText(/Email is invalid/i)).toBeInTheDocument();
       expect(submitBtn).toBeDisabled();
     });
@@ -440,7 +440,7 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       const submitBtn = screen.getByTestId("contact-submit");
 
       fireEvent.change(msgInput, { target: { value: "Too short" } }); // 9 characters
-      
+
       expect(screen.getByText(/Message must be at least 10 characters long/i)).toBeInTheDocument();
       expect(submitBtn).toBeDisabled();
     });
@@ -465,7 +465,7 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       fireEvent.change(screen.getByTestId("name-input"), { target: { value: "Manas Gupta" } });
       fireEvent.change(screen.getByTestId("email-input"), { target: { value: "manas@agoda.com" } });
       fireEvent.change(screen.getByTestId("message-input"), { target: { value: "Valid message for submission." } });
-      
+
       const submitBtn = screen.getByTestId("contact-submit");
       fireEvent.click(submitBtn);
 

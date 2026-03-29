@@ -145,22 +145,35 @@ body {
 }
 
 .list-header, .list-row {
-  display: grid;
-  padding: 1rem;
+  display: grid !important;
+  /* Columns: Name | Amount | Date | Up | Down | Actions */
+  /* We use 1.8fr for Actions to ensure the two buttons never wrap */
+  grid-template-columns: 2fr 1fr 1.5fr 0.8fr 0.8fr 1.8fr; 
+  gap: 15px;
   align-items: center;
+  width: 100%;
+  padding: 1rem;
 }
 
-/* Inventory: 5 Columns */
 .list-header {
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
   background-color: #f8f9fa;
   font-weight: 700;
   border-bottom: 2px solid var(--agoda-gray-border);
 }
 
 .list-row {
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr;
   border-bottom: 1px solid #eee;
+  background: white;
+}
+
+/* Force Actions to stay in one horizontal line */
+.col-actions {
+  display: flex !important;
+  flex-direction: row !important; /* Explicitly horizontal */
+  gap: 8px;
+  justify-content: flex-end;
+  white-space: nowrap;
+  min-width: 160px; /* Minimum space needed for View + Remove */
 }
 
 /* Leads Override: 3 Columns */
@@ -233,6 +246,24 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+}
+
+.vertical-form .layout-column {
+  width: 100% !important; 
+  display: flex;
+  flex-direction: column;
+}
+
+.vertical-form input, 
+.vertical-form textarea,
+.agoda-select,
+.budget-input {
+  width: 100% !important; 
+  padding: 14px;
+  border: 1px solid var(--agoda-gray-border);
+  border-radius: var(--agoda-radius-sm);
+  font-size: 15px;
+  outline: none;
 }
 
 .form-message-box {
@@ -403,4 +434,18 @@ button:disabled {
   border: 1px solid #d0d0d0 !important;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* ==========================================================================
+   4. BUDGET PLANNER & CALCULATOR STYLES
+   ========================================================================== */
+.budget-header-box {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.units-count {
+  font-weight: 700;
+  color: var(--agoda-blue-secondary);
+  font-size: 1.1rem;
 }
