@@ -4,9 +4,34 @@ import { useLeads } from "./hooks/useLeads";
 import InventoryTable from "./components/InventoryTable";
 import ContactForm from "./components/ContactForm";
 import ItemDetail from "./components/ItemDetail";
+import OnboardingTutorial from "./components/OnboardingTutorial";
 import "./App.css";
 
+const TUTORIAL_SLIDES = [
+  {
+    title: "Welcome to Agoda Platform",
+    text: "Your central hub for managing inventory, tracking user votes, and handling business leads.",
+    icon: "🏨"
+  },
+  {
+    title: "Dynamic Inventory",
+    text: "Add items, search through your catalog, and sort by date or popularity at the click of a button.",
+    icon: "📋"
+  },
+  {
+    title: "Profile Navigation",
+    text: "Use the 'Jump to Details' dropdown at the top to cycle through detailed item profiles.",
+    icon: "🔄"
+  },
+  {
+    title: "Lead Management",
+    text: "Review customer inquiries in the Leads section. Submit test messages in the Contact Form to see them appear live.",
+    icon: "📧"
+  }
+];
+
 export default function App() {
+  const [showTutorial, setShowTutorial] = useState(true);
   const [view, setView] = useState("inventory");
   const [selectedItemId, setSelectedItemId] = useState(null);
   const { items, addItem, removeItem, handleVote } = useItemList();
@@ -44,6 +69,12 @@ export default function App() {
 
   return (
     <div className="container">
+      {showTutorial && (
+        <OnboardingTutorial 
+          slides={TUTORIAL_SLIDES} 
+          onFinish={() => setShowTutorial(false)} 
+        />
+      )}
       <header className="navbar">
         <div className="nav-content">
           <h1 onClick={handleReturnToInventory} style={{ cursor: "pointer" }}>

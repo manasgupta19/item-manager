@@ -304,4 +304,103 @@ describe("Item Manager Platform - Final 16-Test Suite", () => {
       expect(screen.queryByText("Recent Submissions")).not.toBeInTheDocument();
     });
   });
+
+  describe("Onboarding Tutorial - Navigation & Modal Logic", () => {
+    beforeEach(() => {
+      localStorage.clear();
+      // We render App, which shows the tutorial by default on the first load
+      render(<App />);
+    });
+
+    /**
+     * Test 21: Initial State Boundaries
+     */
+    it("disables Restart and Prev buttons on the first slide", () => {
+      expect(screen.getByText("Slide 1 of 4")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to Agoda Platform")).toBeInTheDocument();
+
+      // Using getByRole or getByText to verify disabled state
+      const restartBtn = screen.getByText("Restart");
+      const prevBtn = screen.getByText("Prev");
+
+      expect(restartBtn).toBeDisabled();
+      expect(prevBtn).toBeDisabled();
+      expect(screen.getByText("Next")).toBeEnabled();
+    });
+
+    /**
+     * Test 22: Forward Navigation
+     */
+    it("updates content and enables navigation buttons on the second slide", () => {
+      fireEvent.click(screen.getByText("Next"));
+
+      expect(screen.getByText("Slide 2 of 4")).toBeInTheDocument();
+      expect(screen.getByText("Dynamic Inventory")).toBeInTheDocument();
+
+      expect(screen.getByText("Restart")).toBeEnabled();
+      expect(screen.getByText("Prev")).toBeEnabled();
+    });
+
+    /**
+     * Test 23: Backward Navigation (Prev)
+     */
+    it("moves back to the previous slide correctly", () => {
+      // Go to slide 2
+      fireEvent.click(screen.getByText("Next"));
+      expect(screen.getByText("Slide 2 of 4")).toBeInTheDocument();
+
+      // Go back to slide 1
+      fireEvent.click(screen.getByText("Prev"));
+      expect(screen.getByText("Slide 1 of 4")).toBeInTheDocument();
+      expect(screen.getByText("Restart")).toBeDisabled();
+    });
+
+    /**
+     * Test 24: Restart Logic
+     */
+    it("returns to the start from any slide when Restart is clicked", () => {
+      // Navigate to slide 3
+      fireEvent.click(screen.getByText("Next"));
+      fireEvent.click(screen.getByText("Next"));
+      expect(screen.getByText("Slide 3 of 4")).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText("Restart"));
+
+      expect(screen.getByText("Slide 1 of 4")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to Agoda Platform")).toBeInTheDocument();
+      expect(screen.getByText("Prev")).toBeDisabled();
+    });
+
+    /**
+     * Test 25: Final Slide Transition
+     */
+    it("replaces Next with Finish on the last slide", () => {
+      // Click Next 3 times to reach slide 4 of 4
+      fireEvent.click(screen.getByText("Next"));
+      fireEvent.click(screen.getByText("Next"));
+      fireEvent.click(screen.getByText("Next"));
+
+      expect(screen.getByText("Slide 4 of 4")).toBeInTheDocument();
+      expect(screen.queryByText("Next")).not.toBeInTheDocument();
+      expect(screen.getByText("Finish & Start")).toBeInTheDocument();
+      expect(screen.getByText("Finish & Start")).toBeEnabled();
+    });
+
+    /**
+     * Test 26: Modal Dismissal
+     */
+    it("closes the onboarding modal when Finish is clicked", () => {
+      // Reach the end
+      fireEvent.click(screen.getByText("Next"));
+      fireEvent.click(screen.getByText("Next"));
+      fireEvent.click(screen.getByText("Next"));
+
+      fireEvent.click(screen.getByText("Finish & Start"));
+
+      // Verify modal content is gone
+      expect(screen.queryByText("Welcome to Agoda Platform")).not.toBeInTheDocument();
+      // Verify main app content is now visible/accessible
+      expect(screen.getByText("Agoda Platform")).toBeInTheDocument();
+    });
+  });
 });
